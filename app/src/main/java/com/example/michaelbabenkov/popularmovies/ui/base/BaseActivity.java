@@ -36,7 +36,7 @@ public abstract class BaseActivity extends AppCompatActivity implements ErrorCal
                 onBackPressed();
                 break;
             case R.id.action_settings:
-                showSettings();
+                onBackPressed();
                 break;
             default:
                 handled = super.onOptionsItemSelected(item);
@@ -81,6 +81,7 @@ public abstract class BaseActivity extends AppCompatActivity implements ErrorCal
 
     private void showSettings(){
         final Intent intent = new Intent(this, SettingsActivity.class);
+
         startActivity(intent);
     }
 }
