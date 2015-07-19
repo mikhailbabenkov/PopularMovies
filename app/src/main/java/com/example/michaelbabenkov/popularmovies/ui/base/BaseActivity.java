@@ -36,7 +36,7 @@ public abstract class BaseActivity extends AppCompatActivity implements ErrorCal
                 onBackPressed();
                 break;
             case R.id.action_settings:
-                onBackPressed();
+                showSettings();
                 break;
             default:
                 handled = super.onOptionsItemSelected(item);

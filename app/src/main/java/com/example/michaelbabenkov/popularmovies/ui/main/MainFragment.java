@@ -2,8 +2,11 @@ package com.example.michaelbabenkov.popularmovies.ui.main;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.michaelbabenkov.popularmovies.R;
 import com.example.michaelbabenkov.popularmovies.infrastructure.adapters.MovieAdapter;
+import com.example.michaelbabenkov.popularmovies.infrastructure.data.MovieContract;
 import com.example.michaelbabenkov.popularmovies.infrastructure.loaders.MovieLoader;
 import com.example.michaelbabenkov.popularmovies.infrastructure.remote.models.Movie;
 import com.example.michaelbabenkov.popularmovies.infrastructure.remote.models.MoviesResponse;
@@ -25,7 +29,7 @@ import butterknife.InjectView;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<MoviesResponse> {
+public class MainFragment extends BaseFragment implements LoaderManager.LoaderCallbacks {
     public static final String TAG = MainFragment.class.getSimpleName();
     @InjectView(R.id.movies_grid_view)
     GridView mMoviesGridView;
@@ -66,6 +70,12 @@ public class MainFragment extends BaseFragment implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null){
             mSortingOrder = savedInstanceState.getString(ARGS_SORT_ORDER);
+        }else{
+            final SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            if(defaultSharedPreferences!=null) {
+                mSortingOrder = defaultSharedPreferences.getString(
+                        getString(R.string.sorting_order_key), getString(R.string.default_sorting));
+            }
         }
         getLoaderManager().initLoader(LOADER_MOVIES, null, this);
         mAdapter = new MovieAdapter(getActivity());
@@ -102,10 +112,16 @@ public class MainFragment extends BaseFragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public Loader<MoviesResponse> onCreateLoader(int id, Bundle args) {
+    public Loader onCreateLoader(int id, Bundle args) {
         switch (id) {
             case LOADER_MOVIES:
-                return new MovieLoader(getActivity(), getErrorCallback(), mSortingOrder);
+                if(mSortingOrder.equals("favourite")){
+                    final Uri uri = MovieContract.MovieTable.CONTENT_URI;
+                    return new CursorLoader(getActivity(), uri, null , null , null , null);
+                }else{
+                    return new MovieLoader(getActivity(), getErrorCallback(), mSortingOrder);
+                }
+
             default:
                 return null;
         }
@@ -118,12 +134,16 @@ public class MainFragment extends BaseFragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoadFinished(Loader<MoviesResponse> loader, MoviesResponse data) {
+    public void onLoadFinished(Loader loader, Object data) {
         switch (loader.getId()) {
             case LOADER_MOVIES:
-                if(data!=null && data.getMovies()!=null){
+                if(data!=null ){
                     mAdapter.clear();
-                    mAdapter.addAll(data.getMovies());
+                    if(mSortingOrder.equals("favourite")){
+                        populateAdapter((Cursor)data);
+                    }else{
+                        mAdapter.addAll(((MoviesResponse)data).getMovies());
+                    }
                 }
                 break;
             default:
@@ -132,7 +152,7 @@ public class MainFragment extends BaseFragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoaderReset(Loader<MoviesResponse> loader) {
+    public void onLoaderReset(Loader loader) {
 
     }
 
@@ -149,6 +169,18 @@ public class MainFragment extends BaseFragment implements LoaderManager.LoaderCa
             mSortingOrder = getString(R.string.default_sorting);
         }
         return result;
+    }
+
+    private void populateAdapter(Cursor data) {
+        final Movie [] movies = new Movie[data.getCount()];
+        if(data.moveToFirst()){
+            movies[data.getPosition()] = Movie.fromCursor(data);
+            while(data.moveToNext()){
+                final Movie movie = Movie.fromCursor(data);
+                movies[data.getPosition()] = movie;
+            }
+        }
+        mAdapter.addAll(movies);
     }
 
     public interface Contract {

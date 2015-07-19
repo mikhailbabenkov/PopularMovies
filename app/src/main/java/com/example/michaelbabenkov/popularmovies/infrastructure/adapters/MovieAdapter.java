@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import com.example.michaelbabenkov.popularmovies.R;
 import com.example.michaelbabenkov.popularmovies.infrastructure.remote.models.Movie;
 import com.example.michaelbabenkov.popularmovies.infrastructure.utils.Constants;
-import com.example.michaelbabenkov.popularmovies.infrastructure.utils.UiHelper;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -49,8 +48,8 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
 
         public void bind(final Movie movie){
             //calculate height base on screen width (assuming that we have 3 columns and 0.67 proportion)
-            float height = (float)(UiHelper.INSTANCE.getScreenWidth())/3f*1.33f;
-            mPosterImageView.getLayoutParams().height = (int) height;
+           // float height = (float)(UiHelper.INSTANCE.getScreenWidth())/3f*1.33f;
+            //mPosterImageView.getLayoutParams().height = (int) height;
             //load pic with picasso
             Picasso.with(mPosterImageView.getContext())
                     .load(Constants.POSTER_ENDPOINT + movie.getPosterPath())

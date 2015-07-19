@@ -9,8 +9,10 @@
     <string-array name="sorting_titles">
         <item>Most popular</item>
         <item>Highest rated</item>
+        <item>Favourite</item>
     </string-array>
 
     <string name="sorting_order_key">Sorting_order</string>
     <string name="empty_view">Loading …</string>
+    <string name="no_data">No Data</string>
 </resources>

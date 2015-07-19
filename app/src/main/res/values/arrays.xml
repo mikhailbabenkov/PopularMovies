@@ -3,6 +3,7 @@
     <string-array name="sorting_values">
         <item>popularity.desc</item>
         <item>vote_average.desc</item>
+        <item>favourite</item>
     </string-array>
     <string name="default_sorting">popularity.desc</string>
 </resources>
