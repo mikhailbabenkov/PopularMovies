@@ -257,17 +257,23 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                     break;
                 case LOADER_FEEDBACKS:
                     mObjects.addAll(Arrays.asList(((FeedBacksResponce) data).getFeedbacks()));
+                    checkAddEmptyReview();
                     break;
                 default:
                     break;
             }
 
-        }else{
-            if(mObjects.isEmpty()) {
-                mObjects.add(new Feedback());
-            }
+        }else {
+            checkAddEmptyReview();
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    // In case no data from server - add dummy list item so that the movie details can be displayed
+    private void checkAddEmptyReview(){
+        if(mObjects.isEmpty()) {
+            mObjects.add(new Feedback());
+        }
     }
 
     @Override
